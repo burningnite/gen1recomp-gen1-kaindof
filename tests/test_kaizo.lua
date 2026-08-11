@@ -11,7 +11,7 @@ package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 
 local Data = T.fixtures.fresh()
-local run = T.sdk.loadMod("mods/gen1_kaizo", { data = Data })
+local run = T.sdk.loadMod("mods/gen1_kaindof", { data = Data })
 T.eq(#run.errors, 0, "loads clean")
 
 -- Stated effect #1: trainer level bump (+random 1..3), applied per slot of

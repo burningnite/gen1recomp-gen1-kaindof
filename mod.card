@@ -1,6 +1,6 @@
 return {
   summary   = "Trainers: six-mon themed teams, smart AI, scaled to player avg + random(1..3); wilds widen to match.",
-  author    = "Rafae",
+  author    = "burningnite / Kaindof",
   tags      = { "hardcore", "balance", "data-only", "mechanics" },
   differences = {
     changed = {
