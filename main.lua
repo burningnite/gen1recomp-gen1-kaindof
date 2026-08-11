@@ -589,11 +589,21 @@ return function(mod)
     return false
   end
 
+  -- 10-Move Legendary Arsenals for wild boss encounters
+  local LEGENDARY_SETS = {
+    MEWTWO   = { "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD", "THUNDERBOLT", "FIRE_BLAST", "SUBSTITUTE", "HYPER_BEAM", "DRAGON_RAGE", "THUNDER_WAVE" },
+    MEW      = { "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED", "PSYCHIC", "BLIZZARD", "THUNDERBOLT", "THUNDER_WAVE", "HYPER_BEAM", "AMNESIA" },
+    ARTICUNO = { "BLIZZARD", "AGILITY", "REFLECT", "DOUBLE_EDGE", "ICE_BEAM", "HYPER_BEAM", "SKY_ATTACK", "REST", "TOXIC", "SUBSTITUTE" },
+    ZAPDOS   = { "THUNDERBOLT", "DRILL_PECK", "THUNDER_WAVE", "AGILITY", "THUNDER", "LIGHT_SCREEN", "REFLECT", "HYPER_BEAM", "REST", "SUBSTITUTE" },
+    MOLTRES  = { "FIRE_BLAST", "AGILITY", "REFLECT", "FIRE_SPIN", "FLAMETHROWER", "HYPER_BEAM", "DOUBLE_EDGE", "REST", "TOXIC", "SUBSTITUTE" },
+  }
+
   mod.hooks:wrap("battle.enemy_action", function(nextAction, battle)
     local action = nextAction(battle)
-    -- Only trainer battles get the sharper brain; wilds stay wild.
-    if type(battle) ~= "table" or battle.kind ~= "trainer"
-       or not battle.trainer then
+    local isLegendaryWild = type(battle) == "table" and battle.kind == "wild"
+      and battle.enemy and battle.enemy.mon and LEGENDARY_SETS[battle.enemy.mon.species] ~= nil
+    -- Trainer battles and wild legendary boss battles get the sharper brain; normal wilds stay wild.
+    if not (type(battle) == "table" and ((battle.kind == "trainer" and battle.trainer) or isLegendaryWild)) then
       return action
     end
     -- Class item turns (Full Restore, Potion) and Struggle stay as vanilla chose.
@@ -829,17 +839,8 @@ return function(mod)
 
   -- -------------------------------------------------------------------
   -- 5. Legendary Wild Pokémon: Force max level (100), max DVs (15),
-  --    50,000 Stat EXP, and curated competitive movesets for ARTICUNO,
-  --    ZAPDOS, MOLTRES, MEWTWO, and MEW in wild encounters.
+  --    50,000 Stat EXP, 10-move arsenals, and post-catch 4-move slicing.
   -- -------------------------------------------------------------------
-  local LEGENDARY_SETS = {
-    MEWTWO   = { "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD" },
-    MEW      = { "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED" },
-    ARTICUNO = { "BLIZZARD", "AGILITY", "REFLECT", "DOUBLE_EDGE" },
-    ZAPDOS   = { "THUNDERBOLT", "DRILL_PECK", "THUNDER_WAVE", "AGILITY" },
-    MOLTRES  = { "FIRE_BLAST", "AGILITY", "REFLECT", "FIRE_SPIN" },
-  }
-
   local status, BattleState = pcall(require, "src.battle.BattleState")
   if status and BattleState and type(BattleState.newWild) == "function" then
     local oldNewWild = BattleState.newWild
@@ -882,6 +883,27 @@ return function(mod)
 
       return battle
     end
-    mod.log:info("kaindof: legendary wild encounters armed (level 100, 15 DVs, 50k Stat EXP, curated sets)")
+
+    -- Wrap storeCaughtMon to slice caught legendary Pokémon down to top 4 signature moves
+    if type(BattleState.storeCaughtMon) == "function" then
+      local oldStoreCaughtMon = BattleState.storeCaughtMon
+      function BattleState.storeCaughtMon(self)
+        if self and self.enemy and self.enemy.mon and type(self.enemy.mon.moves) == "table" then
+          if #self.enemy.mon.moves > 4 then
+            local sliced = {}
+            for i = 1, 4 do
+              sliced[i] = self.enemy.mon.moves[i]
+            end
+            self.enemy.mon.moves = sliced
+            if type(self.enemy.curMoves) == "table" then
+              self.enemy.curMoves = sliced
+            end
+          end
+        end
+        return oldStoreCaughtMon(self)
+      end
+    end
+
+    mod.log:info("kaindof: legendary wild encounters armed (level 100, 15 DVs, 50k Stat EXP, 10-move sets, competitive AI)")
   end
 end

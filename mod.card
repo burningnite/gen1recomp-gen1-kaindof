@@ -13,7 +13,7 @@ return {
       "Trainer AI picks moves competitively: type-chart damage with STAB, status spreading, low-HP healing, situational setup and Explosion, never into an immunity",
       "Each zone's rare encounter slots carry fresh progression-tier species",
       "Wild levels: a flat +2 so catches stay viable against buffed trainers",
-      "Legendary Wilds: Articuno, Zapdos, Moltres, Mewtwo, & Mew scaled to L100, 15 DVs, 50k Stat EXP, & curated movesets",
+      "Legendary Wilds: Articuno, Zapdos, Moltres, Mewtwo, & Mew scaled to L100, 15 DVs, 50k Stat EXP, competitive AI, 10-move boss arsenals, & post-catch 4-move slicing",
     },
     added = {},
     known = {

@@ -1,10 +1,12 @@
--- Standalone test suite for legendary wild Pokemon scaling in gen1_kaindof.
+-- Standalone test suite for legendary wild Pokemon 10-move boss fights and slicing.
 -- Run from the gen1recomp repo root with a Lua interpreter:
 --
 --   lua mods/gen1_kaindof/tests/test_legendaries.lua
 --
--- Asserts that wild battles against MEWTWO, MEW, ARTICUNO, ZAPDOS, and MOLTRES
--- force Level 100, max 15 DVs, 50,000 Stat EXP, and curated movesets.
+-- Asserts that wild battles against MEWTWO, MEW, ARTICUNO, ZAPDOS, and MOLTRES:
+-- 1. Force Level 100, max 15 DVs, 50,000 Stat EXP.
+-- 2. Populate 10-move competitive arsenals during battle.
+-- 3. Slice moves down to top 4 signature moves upon capture.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
@@ -25,7 +27,12 @@ for _, sp in ipairs(legendaries) do
   end
 end
 
-local reqMoves = { "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD", "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED", "THUNDERBOLT", "DRILL_PECK", "THUNDER_WAVE", "AGILITY", "FIRE_BLAST", "REFLECT", "FIRE_SPIN", "DOUBLE_EDGE" }
+local reqMoves = {
+  "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD", "THUNDERBOLT", "FIRE_BLAST", "SUBSTITUTE", "HYPER_BEAM", "DRAGON_RAGE", "THUNDER_WAVE",
+  "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED",
+  "AGILITY", "REFLECT", "DOUBLE_EDGE", "ICE_BEAM", "SKY_ATTACK", "REST", "TOXIC",
+  "DRILL_PECK", "THUNDER", "LIGHT_SCREEN", "FIRE_SPIN", "FLAMETHROWER"
+}
 for _, mv in ipairs(reqMoves) do
   if not Data.moves[mv] then
     Data.moves[mv] = { power = 50, type = "NORMAL", pp = 10 }
@@ -52,15 +59,15 @@ local mockGame = {
   }
 }
 
-local expectedSets = {
-  MEWTWO   = { "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD" },
-  MEW      = { "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED" },
-  ARTICUNO = { "BLIZZARD", "AGILITY", "REFLECT", "DOUBLE_EDGE" },
-  ZAPDOS   = { "THUNDERBOLT", "DRILL_PECK", "THUNDER_WAVE", "AGILITY" },
-  MOLTRES  = { "FIRE_BLAST", "AGILITY", "REFLECT", "FIRE_SPIN" },
+local expected10Sets = {
+  MEWTWO   = { "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD", "THUNDERBOLT", "FIRE_BLAST", "SUBSTITUTE", "HYPER_BEAM", "DRAGON_RAGE", "THUNDER_WAVE" },
+  MEW      = { "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED", "PSYCHIC", "BLIZZARD", "THUNDERBOLT", "THUNDER_WAVE", "HYPER_BEAM", "AMNESIA" },
+  ARTICUNO = { "BLIZZARD", "AGILITY", "REFLECT", "DOUBLE_EDGE", "ICE_BEAM", "HYPER_BEAM", "SKY_ATTACK", "REST", "TOXIC", "SUBSTITUTE" },
+  ZAPDOS   = { "THUNDERBOLT", "DRILL_PECK", "THUNDER_WAVE", "AGILITY", "THUNDER", "LIGHT_SCREEN", "REFLECT", "HYPER_BEAM", "REST", "SUBSTITUTE" },
+  MOLTRES  = { "FIRE_BLAST", "AGILITY", "REFLECT", "FIRE_SPIN", "FLAMETHROWER", "HYPER_BEAM", "DOUBLE_EDGE", "REST", "TOXIC", "SUBSTITUTE" },
 }
 
-for species, expectedMoves in pairs(expectedSets) do
+for species, expectedMoves in pairs(expected10Sets) do
   local battle = BattleState.newWild(mockGame, species, 50)
   T.check(battle ~= nil and battle.enemy ~= nil and battle.enemy.mon ~= nil, "wild battle created for " .. species)
 
@@ -73,9 +80,19 @@ for species, expectedMoves in pairs(expectedSets) do
   local expVal = mon.stat_exp and mon.stat_exp.attack
   T.eq(expVal, 50000, species .. " Stat EXP forced to 50,000")
 
-  T.check(type(mon.moves) == "table" and #mon.moves == #expectedMoves, species .. " moveset has " .. #expectedMoves .. " moves")
-  for i, expectedMove in ipairs(expectedMoves) do
-    T.eq(mon.moves[i] and mon.moves[i].id, expectedMove, species .. " move " .. i .. " matches " .. expectedMove)
+  -- Verify 10 moves during battle
+  T.eq(#mon.moves, 10, species .. " battle moveset has exactly 10 moves")
+  for i = 1, 10 do
+    T.eq(mon.moves[i] and mon.moves[i].id, expectedMoves[i], species .. " battle move " .. i .. " matches " .. expectedMoves[i])
+  end
+
+  -- Simulate capture and verify 4-move slicing
+  if type(BattleState.storeCaughtMon) == "function" then
+    BattleState.storeCaughtMon(battle)
+    T.eq(#mon.moves, 4, species .. " post-catch moveset sliced to 4 moves")
+    for i = 1, 4 do
+      T.eq(mon.moves[i] and mon.moves[i].id, expectedMoves[i], species .. " caught move " .. i .. " matches " .. expectedMoves[i])
+    end
   end
 end
 

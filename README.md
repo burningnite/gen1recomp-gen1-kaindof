@@ -33,7 +33,7 @@ love .
 | First rival battle | **Left completely vanilla** — one starter in Oak's lab, as it should be |
 | Wild variety | Each zone's rare slots (the tail of the encounter table) are replaced with fresh, progression-tier species: Abra / Machop / Growlithe / Vulpix early, Scyther / Tangela / Electabuzz mid-game, Dratini / Lapras / Porygon late. Common slots keep the area's vanilla identity |
 | Wild levels | A flat, static **+2** so fresh catches are viable against buffed trainers |
-| Legendary Wilds | **Forced Level 100, 15 DVs, 50,000 Stat EXP, & Curated Competitive Movesets** for Articuno, Zapdos, Moltres, Mewtwo, and Mew (supersedes all other wild mods) |
+| Legendary Wilds | **Forced Level 100, 15 DVs, 50,000 Stat EXP, Competitive AI, 10-Move Boss Arsenals, & Post-Catch 4-Move Slicing** for Articuno, Zapdos, Moltres, Mewtwo, and Mew (supersedes all other wild mods) |
 
 Items and the economy are untouched. Bench picks and rare-slot picks are
 deterministic per trainer and per area, so two Youngsters on the same route

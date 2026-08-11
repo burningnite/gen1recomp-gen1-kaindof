@@ -3,6 +3,13 @@
 All notable changes to this mod are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/), versions follow semver.
 
+## 0.6.0 - 2026-08-11
+
+### Added
+- **10-Move Legendary Boss Arsenals**: Wild encounters with `MEWTWO`, `MEW`, `ARTICUNO`, `ZAPDOS`, and `MOLTRES` operate with an expanded 10-move competitive toolkit in battle.
+- **Competitive AI Armed for Wild Legendaries**: Updated `battle.enemy_action` so wild legendary encounters evaluate move efficiency, STAB, status, healing, and smart switching using the same competitive AI as Elite Four and Champion battles.
+- **Post-Catch 4-Move Slicing**: Wrapped `BattleState.storeCaughtMon` to automatically slice caught legendary Pokémon's moves down to the top 4 signature moves before saving to the player's party or PC box, maintaining save file compatibility.
+
 ## 0.5.0 - 2026-08-11
 
 ### Added

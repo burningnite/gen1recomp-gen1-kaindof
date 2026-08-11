@@ -1,7 +1,7 @@
 {
   "id": "gen1_kaindof",
   "name": "Gen 1 Kaindof",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "overhaul",
@@ -12,5 +12,5 @@
   "optional_dependencies": [],
   "conflicts": [],
   "github": "burningnite/gen1recomp-gen1-kaindof",
-  "description": "Gen 1 kind of Kaizo-style overhaul: trainers run themed parties of six with levels scaled by class tier (player avg + 1-5 regular, 5-10 Gym Leaders, 10-20 Elite Four), tiered DVs, progress-scaled Stat EXP, competitive movesets, and a competitive AI; legendary wild Pokémon scale to max level 100, 15 DVs, 50k Stat EXP, and curated movesets."
+  "description": "Gen 1 kind of Kaizo-style overhaul: trainers run themed parties of six with levels scaled by class tier (player avg + 1-5 regular, 5-10 Gym Leaders, 10-20 Elite Four), tiered DVs, progress-scaled Stat EXP, competitive movesets, and a competitive AI; legendary wild Pokémon scale to max level 100, 15 DVs, 50k Stat EXP, competitive AI, 10-move boss arsenals, and post-catch 4-move slicing."
 }
