@@ -1,7 +1,7 @@
 -- Gen 1 Kaizo: trainers hit harder, fight smarter, and the wild keeps
 -- pace. Every trainer fields a full party of six padded with varied
--- species that fit the trainer's class, topped by one surprise ace, at a
--- flat static level bump. Species with a known competitive Gen 1 set get
+-- species that fit the trainer's class, topped by one surprise ace, with
+-- levels scaled to average player team level plus random(1 to 3). Species with a known competitive Gen 1 set get
 -- it, and trainer AI picks moves competitively: exploiting type weaknesses,
 -- spreading status, healing low, and never clicking into an immunity. The
 -- very first rival battle stays vanilla: one starter, untouched.
@@ -31,7 +31,8 @@
 -- Tuning knobs. Keep these at the top so the whole difficulty curve is
 -- auditable at a glance.
 local PARTY_SIZE       = 6   -- every trainer fields a full team
-local LEVEL_BONUS      = 3   -- flat, static level increase for every trainer Pokemon
+local LEVEL_BONUS_MIN  = 1   -- min level bonus added to average player team level
+local LEVEL_BONUS_MAX  = 3   -- max level bonus added to average player team level
 local WILD_LEVEL_BONUS = 2   -- flat, static level increase for wild encounters
 local RARE_SLOT_COUNT  = 3   -- rare slots per zone replaced with fresh species
 local SET_MIN_LEVEL    = 25  -- curated sets only apply at/above this level, so
@@ -194,7 +195,8 @@ local SETUP_EFFECTS = {
 local FIXED_AMOUNTS = { DRAGON_RAGE = 40, SONICBOOM = 20 }
 
 local function bumpedLevel(level)
-  local out = level + LEVEL_BONUS
+  local bonus = math.random(LEVEL_BONUS_MIN, LEVEL_BONUS_MAX)
+  local out = level + bonus
   if out > LEVEL_CAP then out = LEVEL_CAP end
   return out
 end
@@ -260,6 +262,31 @@ return function(mod)
   local pokemonReg = mod.content.pokemon
   local function inRegistry(sp)
     return sp ~= nil and pokemonReg ~= nil and pokemonReg:get(sp) ~= nil
+  end
+
+  -- Track the live Game object to read player party level at battle start.
+  local gameRef
+  if mod.events and mod.events.on then
+    mod.events:on("game.ready", function(ev)
+      if type(ev) == "table" and ev.game then gameRef = ev.game end
+    end)
+  end
+
+  local function getPlayerAverageLevel()
+    if not (gameRef and gameRef.save and type(gameRef.save.party) == "table") then
+      return nil
+    end
+    local pparty = gameRef.save.party
+    local count, sum = 0, 0
+    for _, mon in ipairs(pparty) do
+      local lv = tonumber(mon.level) or 0
+      if lv > 0 then
+        sum = sum + lv
+        count = count + 1
+      end
+    end
+    if count == 0 then return nil end
+    return math.floor(sum / count + 0.5)
   end
 
   -- -------------------------------------------------------------------
@@ -346,30 +373,39 @@ return function(mod)
     .. "(%d first-rival rosters left vanilla)", buffed, skippedRival)
 
   -- -------------------------------------------------------------------
-  -- 2. Competitive movesets, via the trainer.party hook: the battle
-  --    builder honors a slot's own `moves` list over the legacy boss-
-  --    move tables (BattleState.newTrainer), and the hook is the seam
-  --    that carries it past the schema-strict registry slots. Sets are
-  --    level-gated so endgame TMs never show up on early-route teams,
-  --    and a slot that already carries moves (another mod's) is kept.
+  -- 2. Competitive movesets & dynamic level scaling, via the trainer.party hook:
+  --    the battle builder honors a slot's own `moves` list over the legacy
+  --    boss-move tables (BattleState.newTrainer), and scales levels based on
+  --    the player's team average level + random(1 to 3). Sets are level-gated
+  --    so endgame TMs never show up on early-route teams, and a slot that
+  --    already carries moves (another mod's) is kept.
   -- -------------------------------------------------------------------
   mod.hooks:wrap("trainer.party", function(nextParty, oppClass, partyIndex, party)
     local out = nextParty(oppClass, partyIndex, party) or party
     if type(out) ~= "table" then return out end
+
+    local avgLevel = getPlayerAverageLevel()
+    local isFirstRival = (oppClass == "OPP_RIVAL1" and (partyIndex or 1) <= 3 and #out == 1)
+
     local rewritten, any = {}, false
     for i, slot in ipairs(out) do
-      local set = type(slot) == "table" and slot.moves == nil
-        and resolvedSets[slot.species] or nil
-      if set and (tonumber(slot.level) or 0) >= SET_MIN_LEVEL then
-        local copy = copyMember(slot)
+      local copy = type(slot) == "table" and copyMember(slot) or { level = slot.level, species = slot.species }
+
+      -- Scale enemy trainer level to average player team level + random(1..3)
+      if avgLevel and not isFirstRival then
+        local bonus = math.random(LEVEL_BONUS_MIN, LEVEL_BONUS_MAX)
+        copy.level = math.min(LEVEL_CAP, math.max(1, avgLevel + bonus))
+        any = true
+      end
+
+      local set = copy.moves == nil and resolvedSets[copy.species] or nil
+      if set and (tonumber(copy.level) or 0) >= SET_MIN_LEVEL then
         local list = {}
         for k, mv in ipairs(set) do list[k] = mv end
         copy.moves = list
-        rewritten[i] = copy
         any = true
-      else
-        rewritten[i] = slot
       end
+      rewritten[i] = copy
     end
     if not any then return out end
     return rewritten

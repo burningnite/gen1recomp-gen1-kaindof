@@ -14,14 +14,14 @@ local Data = T.fixtures.fresh()
 local run = T.sdk.loadMod("mods/gen1_kaizo", { data = Data })
 T.eq(#run.errors, 0, "loads clean")
 
--- Stated effect #1: static trainer level bump (+3), applied per slot of
+-- Stated effect #1: trainer level bump (+random 1..3), applied per slot of
 -- every roster in the parties list. Fixture: OPP_FIX_YOUNGSTER has one
 -- party of two level-5 mons.
 local trainer = Data.trainers.OPP_FIX_YOUNGSTER
 T.check(trainer and type(trainer.parties) == "table", "fixture trainer present")
 local party = trainer.parties[1]
-T.eq(party[1].level, 8, "slot 1 bumped 5 -> 8")
-T.eq(party[2].level, 8, "slot 2 bumped 5 -> 8")
+T.check(party[1].level >= 6 and party[1].level <= 8, "slot 1 bumped 5 -> 5 + random(1..3)")
+T.check(party[2].level >= 6 and party[2].level <= 8, "slot 2 bumped 5 -> 5 + random(1..3)")
 
 -- Stated effect #2: parties stay schema-valid. Padding species must exist
 -- in the pokemon registry; the fixture set has none of the real Kanto ids,

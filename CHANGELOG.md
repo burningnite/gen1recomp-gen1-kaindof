@@ -7,8 +7,8 @@ All notable changes to this mod are documented here. Format follows
 
 ### Added
 
-- Trainer levels raised by a flat, static +3 (capped at 100), applied to
-  every roster in each trainer class's parties list.
+- Trainer levels scaled to (average player team level) + random(1 to 3)
+  (capped at 100), applied to every roster in each trainer class's parties list.
 - Trainer parties padded to 6 with varied species themed to the trainer's
   class, closed by one surprise ace one level above the old strongest.
 - Competitive RBY movesets for ~55 species, carried by the trainer.party

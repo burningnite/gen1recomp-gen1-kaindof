@@ -1,10 +1,10 @@
 return {
-  summary   = "Trainers: six-mon themed teams, smart AI, +3 levels; wilds widen to match.",
+  summary   = "Trainers: six-mon themed teams, smart AI, scaled to player avg + random(1..3); wilds widen to match.",
   author    = "Rafae",
   tags      = { "hardcore", "balance", "data-only", "mechanics" },
   differences = {
     changed = {
-      "Trainer levels: a flat +3 on every Pokemon (static, no scaling)",
+      "Trainer levels: average player team level + random(1 to 3)",
       "Parties padded to 6 with varied species themed to the trainer class",
       "Each padded party is closed by one surprise ace, one level above the old strongest",
       "~55 species get a classic RBY competitive moveset on trainer teams",

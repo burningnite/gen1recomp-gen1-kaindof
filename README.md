@@ -1,6 +1,6 @@
 # Gen 1 Kaizo
 
-A kaizo-style overhaul for [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp): every trainer fields a themed party of six with a surprise ace at +3 levels, competitive Gen 1 movesets, and a competitive AI that exploits your weaknesses — while each area's wild encounter pool widens so you can build a team that keeps up.
+A kaizo-style overhaul for [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp): every trainer fields a themed party of six with levels scaled to your average team level plus random(1..3), competitive Gen 1 movesets, and a competitive AI that exploits your weaknesses — while each area's wild encounter pool widens so you can build a team that keeps up.
 
 Try it:
 
@@ -21,7 +21,7 @@ love .
 
 | Area | Change |
 |---|---|
-| Levels | A flat, static **+3** on every trainer Pokémon — no scaling, a challenge, not a wall |
+| Levels | **Average player team level + random(1..3)** on every trainer Pokémon |
 | Party size | Padded to 6 with **varied species themed to the trainer's class** (Bug Catchers bring bugs, Hikers bring rock/ground, gym leaders pad within their type) |
 | Ace | Each padded party closes with one surprise ace (Bug Catcher → Scyther, Fisherman → Gyarados, Lance → second Dragonite…) one level above the team's old strongest |
 | Movesets | ~55 species get a classic RBY competitive set (Tauros: Body Slam / Hyper Beam / Earthquake / Blizzard, Chansey: Ice Beam / Thunderbolt / Thunder Wave / Soft-Boiled, ...) — **only from level 25 up**, so endgame TM sets never appear on early-route trainers |
