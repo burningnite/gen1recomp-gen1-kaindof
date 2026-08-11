@@ -1,4 +1,4 @@
--- Gen 1 kaindof: trainers hit harder, fight smarter, and the wild keeps
+-- Gen 1 kind-of Kaizo: trainers hit harder, fight smarter, and the wild keeps
 -- pace. Every trainer fields a full party of six padded with varied
 -- species that fit the trainer's class, topped by one surprise ace, with
 -- levels scaled to average player team level plus random(1 to 3). Species with a known competitive Gen 1 set get
