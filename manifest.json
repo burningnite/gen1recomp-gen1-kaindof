@@ -12,5 +12,5 @@
   "optional_dependencies": [],
   "conflicts": [],
   "github": "burningnite/gen1recomp-gen1-kaindof",
-  "description": "Kaindof-style difficulty: trainers run themed parties of six with levels scaled to average player team level plus random(1..3), tiered DVs, progress-scaled Stat EXP, competitive movesets, and a competitive AI that exploits weaknesses; wild encounter pools widen to keep the player competitive."
+  "description": "Gen 1 Kaindof-style overhaul: trainers run themed parties of six with levels scaled to average player team level plus random(1..3), tiered DVs, progress-scaled Stat EXP, competitive movesets, and a competitive AI that exploits weaknesses; wild encounter pools widen to keep the player competitive."
 }

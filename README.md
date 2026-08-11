@@ -1,6 +1,6 @@
 # Gen 1 Kaindof
 
-A kaindof-style overhaul for [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp). This mod is available at [burningnite/gen1recomp-gen1-kaindof](https://github.com/burningnite/gen1recomp-gen1-kaindof) and releases can be found [here](https://github.com/burningnite/gen1recomp-gen1-kaindof/releases).
+A kaindof-style difficulty overhaul for [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp). This mod is available at [burningnite/gen1recomp-gen1-kaindof](https://github.com/burningnite/gen1recomp-gen1-kaindof) and releases can be found [here](https://github.com/burningnite/gen1recomp-gen1-kaindof/releases).
 
 Every trainer fields a themed party of six with levels scaled to your average team level plus random(1..3), competitive Gen 1 movesets, and a competitive AI that exploits your weaknesses — while each area's wild encounter pool widens so you can build a team that keeps up.
 
