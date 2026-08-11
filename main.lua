@@ -40,7 +40,7 @@ local LEVEL_CAP        = 100
 -- listed keeps its vanilla trainer moves. Move ids use the pokered
 -- constants; unknown ids are resolved through MOVE_ALIASES or dropped
 -- with a warning rather than crashing the load.
-local kaindof_SETS = {
+local KAINDOF_SETS = {
   ALAKAZAM   = { "PSYCHIC", "RECOVER", "THUNDER_WAVE", "SEISMIC_TOSS" },
   ARCANINE   = { "FIRE_BLAST", "BODY_SLAM", "HYPER_BEAM", "REFLECT" },
   ARTICUNO   = { "BLIZZARD", "ICE_BEAM", "REFLECT", "AGILITY" },
@@ -339,7 +339,7 @@ return function(mod)
   -- so a bad id is a single load-time warning instead of a battle crash.
   local moves = mod.content.moves
   local resolvedSets, dropped = {}, {}
-  for species, set in pairs(kaindof_SETS) do
+  for species, set in pairs(KAINDOF_SETS) do
     local resolved = {}
     for _, name in ipairs(set) do
       local found
