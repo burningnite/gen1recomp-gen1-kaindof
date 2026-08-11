@@ -3,6 +3,11 @@
 All notable changes to this mod are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/), versions follow semver.
 
+## 0.4.0 - 2026-08-11
+
+### Added
+- **Smart Switching Evaluation Engine**: Score-based switch decision logic for trainer AI. Evaluates consecutive switch penalties (-3), pro-switch conditions (+1 for no effective moves, free switch window, telegraphed attack dodge, severe debuffs, or bad type matchup), and anti-switch conditions (-1 for opponent low HP with speed advantage, stat boost investment, or statused opponent), permitting switches only when `switchScore >= 0`.
+
 ## 0.3.1 - 2026-08-11
 
 ### Fixed

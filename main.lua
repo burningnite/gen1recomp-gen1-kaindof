@@ -562,6 +562,33 @@ return function(mod)
     return mult
   end
 
+  -- Telegraphed 2-turn moves and their attack types
+  local TELEGRAPHED_MOVES = {
+    FLY = "FLYING", DIG = "GROUND", SKY_ATTACK = "FLYING",
+    SKULL_BASH = "NORMAL", SOLARBEAM = "GRASS", RAZOR_WIND = "NORMAL"
+  }
+  local PRIORITY_MOVES = { QUICK_ATTACK = true }
+
+  local function canDodgeTelegraphedMove(data, playerMon, enemyParty)
+    if not (playerMon and playerMon.chargingMove and type(enemyParty) == "table") then
+      return false
+    end
+    local moveType = TELEGRAPHED_MOVES[playerMon.chargingMove]
+    if not moveType then return false end
+
+    local pkmnDefs = data and data.pokemon
+    for _, slot in ipairs(enemyParty) do
+      if type(slot) == "table" and (slot.hp or 1) > 0 and slot ~= enemyParty.active then
+        local speciesDef = pkmnDefs and pkmnDefs[slot.species]
+        local benchTypes = speciesDef and speciesDef.types or slot.curTypes or {}
+        if effectiveness(data, moveType, benchTypes) <= 0.5 then
+          return true
+        end
+      end
+    end
+    return false
+  end
+
   mod.hooks:wrap("battle.enemy_action", function(nextAction, battle)
     local action = nextAction(battle)
     -- Only trainer battles get the sharper brain; wilds stay wild.
@@ -597,20 +624,23 @@ return function(mod)
     local theirMax = p.mon.stats and p.mon.stats.hp or 0
     local myHp = myMax > 0 and (e.mon.hp or myMax) / myMax or 1
     local theirHp = theirMax > 0 and (p.mon.hp or theirMax) / theirMax or 1
-    local theirStatused = p.mon.status ~= nil
+    local pStatus = p.mon.status
+    local theirStatused = pStatus ~= nil and pStatus ~= ""
     local myLevel = tonumber(e.mon.level) or 50
 
     -- Score every usable move: damage is power x effectiveness x STAB;
     -- status, healing, setup and Explosion get situational scores so the
-    -- AI uses them in smart spots instead of at random. When nothing
-    -- scores, vanilla's pick stands.
-    local best, bestScore
+    -- AI uses them in smart spots instead of at random.
+    local best, bestScore, maxMoveEff = nil, nil, 0
     for i, mv in ipairs(e.curMoves) do
       if e.disabledSlot ~= i and (unlimited or (mv.pp or 0) > 0) then
         local def = moveDefs[mv.id]
         if def then
           local score = 0
           local eff = effectiveness(data, def.type, theirTypes)
+          if (def.power or 0) > 0 and eff > maxMoveEff then
+            maxMoveEff = eff
+          end
           local effect = def.effect
           if effect == "EXPLODE_EFFECT" then
             -- save the nuke until this mon is nearly done for
@@ -655,6 +685,75 @@ return function(mod)
         end
       end
     end
+
+    -- Smart Switching Evaluation Engine
+    local isSwitchRequest = type(action) == "table" and action.special == "switch"
+    if isSwitchRequest then
+      local switchScore = 0
+
+      -- 1. Consecutive Switch Penalty (-3)
+      if e.lastActionWasSwitch then
+        switchScore = switchScore - 3
+      end
+
+      -- 2. Pro-Switch Conditions (+1 each)
+      -- No effective moves (maxMoveEff <= 0.5)
+      if maxMoveEff <= 0.5 then
+        switchScore = switchScore + 1
+      end
+      -- Safe free switch window (myHp >= 70% and player unable to act)
+      local playerUnable = pStatus == "SLP" or pStatus == "FRZ" or pStatus == "sleep" or pStatus == "freeze"
+      if myHp >= 0.7 and playerUnable then
+        switchScore = switchScore + 1
+      end
+      -- Telegraphed attack dodge (+1)
+      if canDodgeTelegraphedMove(data, p.mon, battle.enemyParty or e.party) then
+        switchScore = switchScore + 1
+      end
+      -- Severe stat debuffs (+1)
+      if (e.atkStage or 0) <= -2 or (e.spcStage or 0) <= -2 then
+        switchScore = switchScore + 1
+      end
+      -- Bad type matchup (+1): Player STAB super-effective against active AI mon
+      for _, pType in ipairs(theirTypes) do
+        if effectiveness(data, pType, myTypes) >= 2.0 then
+          switchScore = switchScore + 1
+          break
+        end
+      end
+
+      -- 3. Anti-Switch Conditions (-1 each)
+      -- Finishing advantage: opponent low HP (<=25%) and AI has speed or priority
+      local hasPriority = false
+      for _, mv in ipairs(e.curMoves) do
+        if PRIORITY_MOVES[mv.id] then hasPriority = true; break end
+      end
+      local mySpeed = (e.mon.stats and e.mon.stats.speed) or 1
+      local theirSpeed = (p.mon.stats and p.mon.stats.speed) or 1
+      if theirHp <= 0.25 and (mySpeed > theirSpeed or hasPriority) then
+        switchScore = switchScore - 1
+      end
+      -- Stat boost investment (-1): active mon has positive stat boosts
+      if (e.atkStage or 0) > 0 or (e.spcStage or 0) > 0 or (e.speStage or 0) > 0 or (e.defStage or 0) > 0 then
+        switchScore = switchScore - 1
+      end
+      -- Player unable to act / statused AND AI active mon has effective move (>=1.0x)
+      if (playerUnable or pStatus == "PAR" or pStatus == "paralysis") and maxMoveEff >= 1.0 then
+        switchScore = switchScore - 1
+      end
+      -- Trapping effect active (-1)
+      if (e.trappingTurns or 0) > 0 then
+        switchScore = switchScore - 1
+      end
+
+      -- If switchScore >= 0, allow switch action and mark consecutive switch flag
+      if switchScore >= 0 then
+        e.lastActionWasSwitch = true
+        return action
+      end
+    end
+
+    e.lastActionWasSwitch = false
     return best or action
   end)
   mod.log:info("kaindof: competitive trainer AI armed (battle.enemy_action)")

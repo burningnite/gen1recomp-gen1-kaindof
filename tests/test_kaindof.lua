@@ -161,10 +161,29 @@ local battleMock = {
   }
 }
 
--- When vanilla AI selects a switch action, the mod overrides with best attack move
+-- When vanilla AI selects a switch action without pro-switch conditions, switchScore < 0 and mod overrides with best attack move
 local switchAction = { special = "switch", slot = 2 }
 local aiChoice = callEnemyActionHook(battleMock, switchAction)
-T.eq(aiChoice.id, "FIX_ATTACK", "AI overrides vanilla switch loop with best attack move")
+T.eq(aiChoice.id, "FIX_ATTACK", "AI overrides vanilla switch loop with best attack move when switchScore < 0")
+
+-- Consecutive Switch Penalty (-3): If e.lastActionWasSwitch is true, switch is blocked (-3)
+battleMock.enemy.lastActionWasSwitch = true
+local consecutiveChoice = callEnemyActionHook(battleMock, switchAction)
+T.eq(consecutiveChoice.id, "FIX_ATTACK", "Consecutive switch penalty (-3) blocks back-to-back switching")
+battleMock.enemy.lastActionWasSwitch = false
+
+-- Pro-switch condition: Telegraphed attack dodge (+1) allows switch when bench mon is resistant
+battleMock.data.moves.FLY = { power = 90, type = "FLYING" }
+battleMock.data.pokemon = { BENCHMON = { types = { "ROCK" } } }
+battleMock.player.mon.chargingMove = "FLY"
+battleMock.enemyParty = { active = battleMock.enemy.mon, { species = "BENCHMON", hp = 100 } }
+local dodgeChoice = callEnemyActionHook(battleMock, switchAction)
+T.eq(dodgeChoice.special, "switch", "Telegraphed move dodge (+1) allows tactical switch")
+
+-- Anti-switch condition: Stat boost investment (-1) blocks switch when active mon is buffed
+battleMock.enemy.atkStage = 2
+local buffedChoice = callEnemyActionHook(battleMock, switchAction)
+T.eq(buffedChoice.id, "FIX_ATTACK", "Stat boost investment (-1) blocks switch when active mon is buffed")
 
 -- Item actions (e.g. Full Restore) are preserved
 local itemAction = { special = "use_item", item = "FULL_RESTORE" }
