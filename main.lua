@@ -43,7 +43,7 @@ local LEVEL_CAP        = 100
 -- listed keeps its vanilla trainer moves. Move ids use the pokered
 -- constants; unknown ids are resolved through MOVE_ALIASES or dropped
 -- with a warning rather than crashing the load.
-local KAIZO_SETS = {
+local KAINDOF_SETS = {
   ALAKAZAM   = { "PSYCHIC", "RECOVER", "THUNDER_WAVE", "SEISMIC_TOSS" },
   ARCANINE   = { "FIRE_BLAST", "BODY_SLAM", "HYPER_BEAM", "REFLECT" },
   ARTICUNO   = { "BLIZZARD", "ICE_BEAM", "REFLECT", "AGILITY" },
@@ -330,7 +330,7 @@ return function(mod)
   local trainers = mod.content.trainers
   if not trainers then
     mod.log:warn("trainers registry unavailable on this engine; "
-      .. "kaizo changes skipped -- update the engine or lower manifest api")
+      .. "kaindof changes skipped -- update the engine or lower manifest api")
     return
   end
 
@@ -338,7 +338,7 @@ return function(mod)
   -- so a bad id is a single load-time warning instead of a battle crash.
   local moves = mod.content.moves
   local resolvedSets, dropped = {}, {}
-  for species, set in pairs(KAIZO_SETS) do
+  for species, set in pairs(KAINDOF_SETS) do
     local resolved = {}
     for _, name in ipairs(set) do
       local found
@@ -349,7 +349,7 @@ return function(mod)
         resolved[#resolved + 1] = found
       elseif not dropped[name] then
         dropped[name] = true
-        mod.log:warn("move %s not in the moves registry; dropped from kaizo "
+        mod.log:warn("move %s not in the moves registry; dropped from kaindof "
           .. "sets -- check the id against the registry reference", name)
       end
     end
@@ -466,7 +466,7 @@ return function(mod)
       end
     end
   end
-  mod.log:info("kaizo: %d trainer classes buffed "
+  mod.log:info("kaindof: %d trainer classes buffed "
     .. "(%d first-rival rosters left vanilla)", buffed, skippedRival)
 
   -- -------------------------------------------------------------------
@@ -644,7 +644,7 @@ return function(mod)
     end
     return best or action
   end)
-  mod.log:info("kaizo: competitive trainer AI armed (battle.enemy_action)")
+  mod.log:info("kaindof: competitive trainer AI armed (battle.enemy_action)")
 
   -- -------------------------------------------------------------------
   -- 4. Wild encounters: variety keeps pace with difficulty. An area
@@ -712,6 +712,6 @@ return function(mod)
       areas = areas + 1
     end
   end
-  mod.log:info("kaizo: refreshed %d encounter areas (%d rare slots now carry "
+  mod.log:info("kaindof: refreshed %d encounter areas (%d rare slots now carry "
     .. "new species)", areas, freshened)
 end

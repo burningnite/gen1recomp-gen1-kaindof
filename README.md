@@ -1,19 +1,21 @@
-# Gen 1 Kaizo
+# Gen 1 Kaindof
 
-A kaizo-style overhaul for [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp): every trainer fields a themed party of six with levels scaled to your average team level plus random(1..3), competitive Gen 1 movesets, and a competitive AI that exploits your weaknesses — while each area's wild encounter pool widens so you can build a team that keeps up.
+A kaindof-style overhaul for [Gen1Recomp](https://github.com/bryanthaboi/gen1recomp). This mod is available at [burningnite/gen1recomp-gen1-kaindof](https://github.com/burningnite/gen1recomp-gen1-kaindof) and releases can be found [here](https://github.com/burningnite/gen1recomp-gen1-kaindof/releases).
+
+Every trainer fields a themed party of six with levels scaled to your average team level plus random(1..3), competitive Gen 1 movesets, and a competitive AI that exploits your weaknesses — while each area's wild encounter pool widens so you can build a team that keeps up.
 
 Try it:
 
 ```sh
-# from your gen1recomp checkout, with this folder copied to mods/gen1_kaizo
-python3 tools/modkit.py validate mods/gen1_kaizo --base imported
-python3 tools/modkit.py lint mods/gen1_kaizo
+# from your gen1recomp checkout, with this folder copied to mods/gen1_kaindof
+python3 tools/modkit.py validate mods/gen1_kaindof --base imported
+python3 tools/modkit.py lint mods/gen1_kaindof
 love .
 ```
 
 ## Install (players)
 
-1. Copy this folder into the game's `mods/` directory as `gen1_kaizo`.
+1. Copy this folder into the game's `mods/` directory as `gen1_kaindof`.
 2. Launch the game and press **F10** (or Options → mod manager) to confirm it is enabled.
 3. Disabling the mod in the manager restores vanilla exactly.
 
@@ -60,11 +62,11 @@ Tuning knobs, the per-class padding pools, the wild-encounter tier pools, and th
 - Contribution rules and polish checklist: `CONTRIBUTING-mods.md` in the engine repo.
 - Tests in `tests/` load the mod through the headless loader against the
   engine's fixture dataset; run from the engine repo root with the mod
-  copied to `mods/gen1_kaizo` (`luajit mods/gen1_kaizo/tests/test_kaizo.lua`,
+  copied to `mods/gen1_kaindof` (`luajit mods/gen1_kaindof/tests/test_kaindof.lua`,
   or the whole T4 tier via `luajit tests/run_modkit.lua`, which discovers
   every `mods/<id>/tests` directory). `.modkitignore` keeps them out of the
   packed archive.
-- Package for distribution with `python3 tools/modkit.py pack mods/gen1_kaizo`.
+- Package for distribution with `python3 tools/modkit.py pack mods/gen1_kaindof`.
 
 > Note: only the GitHub repo and the project Discord are official sources for
 > Gen1Recomp. The site `gen1recomp.com` is disavowed by the maintainers — do not

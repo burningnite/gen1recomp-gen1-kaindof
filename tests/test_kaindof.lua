@@ -1,7 +1,7 @@
--- Headless loader test for gen1_kaizo. Run from the gen1recomp repo root
+-- Headless loader test for gen1_kaindof. Run from the gen1recomp repo root
 -- with a Lua interpreter (the harness stubs love):
 --
---   lua mods/gen1_kaizo/tests/test_kaizo.lua
+--   lua mods/gen1_kaindof/tests/test_kaindof.lua
 --
 -- Uses the engine's fixture dataset (FIXMON species, FIX_* moves), so it
 -- asserts the mod's *degradation contract* as much as its effects: levels
@@ -11,7 +11,7 @@ package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 
 local Data = T.fixtures.fresh()
-local run = T.sdk.loadMod("mods/gen1_kaizo", { data = Data })
+local run = T.sdk.loadMod("mods/gen1_kaindof", { data = Data })
 T.eq(#run.errors, 0, "loads clean")
 
 -- Stated effect #1: trainer level bump (+random 1..3), applied per slot of
@@ -51,4 +51,4 @@ T.check(Runtime.wantsHook("trainer.party"), "trainer.party hook registered")
 T.check(Runtime.wantsHook("battle.enemy_action"), "battle.enemy_action hook registered")
 
 run.release()
-T.finish("gen1_kaizo")
+T.finish("gen1_kaindof")
