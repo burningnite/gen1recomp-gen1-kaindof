@@ -31,9 +31,6 @@
 -- Tuning knobs. Keep these at the top so the whole difficulty curve is
 -- auditable at a glance.
 local PARTY_SIZE       = 6   -- every trainer fields a full team
-local LEVEL_BONUS_MIN  = 1   -- min level bonus added to average player team level
-local LEVEL_BONUS_MAX  = 3   -- max level bonus added to average player team level
-local WILD_LEVEL_BONUS = 2   -- flat, static level increase for wild encounters
 local RARE_SLOT_COUNT  = 3   -- rare slots per zone replaced with fresh species
 local SET_MIN_LEVEL    = 25  -- curated sets only apply at/above this level, so
                              -- endgame TM sets never appear in the first hour
@@ -194,11 +191,15 @@ local SETUP_EFFECTS = {
 -- level-worth damage (Seismic Toss, Night Shade, Psywave).
 local FIXED_AMOUNTS = { DRAGON_RAGE = 40, SONICBOOM = 20 }
 
-local function bumpedLevel(level)
-  local bonus = math.random(LEVEL_BONUS_MIN, LEVEL_BONUS_MAX)
-  local out = level + bonus
-  if out > LEVEL_CAP then out = LEVEL_CAP end
-  return out
+local function getTrainerLevelBonus(oppClass)
+  local key = tostring(oppClass or ""):upper():gsub("^OPP_", ""):gsub("%d+$", "")
+  if key == "LORELEI" or key == "BRUNO" or key == "AGATHA" or key == "LANCE" or key == "RIVAL" and tostring(oppClass or ""):upper():find("RIVAL3") then
+    return math.random(15, 30)
+  elseif key == "BROCK" or key == "MISTY" or key == "LT_SURGE" or key == "ERIKA" or key == "KOGA" or key == "SABRINA" or key == "BLAINE" or key == "GIOVANNI" then
+    return math.random(10, 15)
+  else
+    return math.random(2, 5)
+  end
 end
 
 -- Trainer DV tier mapping: early route classes get 3-5 DVs, mid-tier 6-9 DVs,
@@ -409,10 +410,12 @@ return function(mod)
 
           -- Levels: a flat, static bump for every slot.
           local newParty, used, maxLevel = {}, {}, 0
+          local partyBonus = getTrainerLevelBonus(id)
           for i, slot in ipairs(party) do
             local level = slot.level
             if type(level) == "number" then
-              level = bumpedLevel(level)
+              level = level + partyBonus
+              if level > LEVEL_CAP then level = LEVEL_CAP end
               if level > maxLevel then maxLevel = level end
             end
             newParty[i] = { level = level, species = slot.species }
@@ -484,14 +487,24 @@ return function(mod)
     local avgLevel = getPlayerAverageLevel()
     local isFirstRival = (oppClass == "OPP_RIVAL1" and (partyIndex or 1) <= 3 and #out == 1)
 
+    local maxOrigLevel = 0
+    if not isFirstRival then
+      for i, slot in ipairs(out) do
+        local slvl = tonumber(type(slot) == "table" and slot.level or nil) or 0
+        if slvl > maxOrigLevel then maxOrigLevel = slvl end
+      end
+    end
+    local trainerBonus = getTrainerLevelBonus(oppClass)
+
     local rewritten, any = {}, false
     for i, slot in ipairs(out) do
       local copy = type(slot) == "table" and copyMember(slot) or { level = slot.level, species = slot.species }
 
-      -- Scale enemy trainer level to average player team level + random(1..3)
+      -- Scale enemy trainer level using avgLevel + trainerBonus, maintaining relative level differences
       if avgLevel and not isFirstRival then
-        local bonus = math.random(LEVEL_BONUS_MIN, LEVEL_BONUS_MAX)
-        copy.level = math.min(LEVEL_CAP, math.max(1, avgLevel + bonus))
+        local orig = tonumber(slot.level) or 1
+        local newLevel = avgLevel + trainerBonus + (orig - (maxOrigLevel - 1))
+        copy.level = math.min(LEVEL_CAP, math.max(1, newLevel))
         any = true
       end
 
@@ -673,7 +686,7 @@ return function(mod)
         for i, slot in ipairs(zone.slots) do
           local level = slot.level
           if type(level) == "number" then
-            level = math.min(LEVEL_CAP, level + WILD_LEVEL_BONUS)
+            level = math.min(LEVEL_CAP, level + math.random(1, 3))
             if level > maxLevel then maxLevel = level end
           end
           newSlots[i] = { level = level, species = slot.species }
