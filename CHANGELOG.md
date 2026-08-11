@@ -3,6 +3,15 @@
 All notable changes to this mod are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/), versions follow semver.
 
+## 0.3.0 - 2026-08-11
+
+### Changed
+- Class-tiered level bonus scaling: regular trainers +1..5, Gym Leaders +5..10, Elite Four & Champion +10..20 over average player team level.
+- Class-tiered DV scaling: early route 3-5, mid-tier 6-9, Gym Leaders 10-14, Elite Four 15 (max).
+- Progressive Stat EXP scaling: 0 early game, capped at 50,000 for regular trainers, up to 65,535 max for Gym Leaders, Elite Four, & Champion.
+- Rebranded repository to Gen 1 Kaindof (`gen1_kaindof`).
+- Expanded unit test suite (`tests/test_kaindof.lua`) to cover all trainer tiers, DVs, Stat EXP capping, and wild encounter slots.
+
 ## 0.2.0 - 2026-08-11
 
 ### Changed
