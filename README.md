@@ -23,7 +23,7 @@ love .
 
 | Area | Change |
 |---|---|
-| Levels | **Average player team level + random(1..3)** on every trainer Pokémon |
+| Levels | **Scaled by class tier**: Regular trainers = player average + random(1..5), Gym Leaders = player average + random(5..10), Elite Four & Champion = player average + random(10..20) |
 | DVs | **Scaled by trainer tier/class**: Early route = 3–5 DVs, Mid-tier = 6–9 DVs, Gym Leaders = 10–14 DVs, Elite Four = 15 DVs (max) |
 | Stat EXP | **Scaled dynamically with level progression**: 0 Stat EXP early game $\rightarrow$ ~26,000 mid-game; capped at **50,000** for regular trainers, while Gym Leaders, Elite Four, and League Champion scale up to full **65,535** |
 | Party size | Padded to 6 with **varied species themed to the trainer's class** (Bug Catchers bring bugs, Hikers bring rock/ground, gym leaders pad within their type) |

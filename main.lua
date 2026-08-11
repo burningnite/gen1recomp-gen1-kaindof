@@ -193,12 +193,12 @@ local FIXED_AMOUNTS = { DRAGON_RAGE = 40, SONICBOOM = 20 }
 
 local function getTrainerLevelBonus(oppClass)
   local key = tostring(oppClass or ""):upper():gsub("^OPP_", ""):gsub("%d+$", "")
-  if key == "LORELEI" or key == "BRUNO" or key == "AGATHA" or key == "LANCE" or key == "RIVAL" and tostring(oppClass or ""):upper():find("RIVAL3") then
-    return math.random(15, 30)
+  if key == "LORELEI" or key == "BRUNO" or key == "AGATHA" or key == "LANCE" or (key == "RIVAL" and tostring(oppClass or ""):upper():find("RIVAL3")) then
+    return math.random(10, 20)
   elseif key == "BROCK" or key == "MISTY" or key == "LT_SURGE" or key == "ERIKA" or key == "KOGA" or key == "SABRINA" or key == "BLAINE" or key == "GIOVANNI" then
-    return math.random(10, 15)
+    return math.random(5, 10)
   else
-    return math.random(2, 5)
+    return math.random(1, 5)
   end
 end
 
@@ -500,11 +500,9 @@ return function(mod)
     for i, slot in ipairs(out) do
       local copy = type(slot) == "table" and copyMember(slot) or { level = slot.level, species = slot.species }
 
-      -- Scale enemy trainer level using avgLevel + trainerBonus, maintaining relative level differences
+      -- Scale enemy trainer level using avgLevel + trainerBonus
       if avgLevel and not isFirstRival then
-        local orig = tonumber(slot.level) or 1
-        local newLevel = avgLevel + trainerBonus + (orig - (maxOrigLevel - 1))
-        copy.level = math.min(LEVEL_CAP, math.max(1, newLevel))
+        copy.level = math.min(LEVEL_CAP, math.max(1, avgLevel + trainerBonus))
         any = true
       end
 
