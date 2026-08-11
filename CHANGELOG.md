@@ -3,6 +3,12 @@
 All notable changes to this mod are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/), versions follow semver.
 
+## 0.5.0 - 2026-08-11
+
+### Added
+- **Legendary Wild Pokémon Scaling**: Wild encounters with `MEWTWO`, `MEW`, `ARTICUNO`, `ZAPDOS`, and `MOLTRES` are automatically scaled to Level 100, max 15 DVs, 50,000 Stat EXP, and assigned curated competitive movesets, superseding any other wild Pokémon mods.
+- **Standalone Legendary Unit Test Suite**: Created [`tests/test_legendaries.lua`](file:///home/jack/bin/gen1recomp/mods/gen1-kaindof/tests/test_legendaries.lua) to verify legendary wild encounter stat recalculation, level overrides, DVs, Stat EXP, and movesets.
+
 ## 0.4.0 - 2026-08-11
 
 ### Added

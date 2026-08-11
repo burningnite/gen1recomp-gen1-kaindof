@@ -826,4 +826,62 @@ return function(mod)
   end
   mod.log:info("kaindof: refreshed %d encounter areas (%d rare slots now carry "
     .. "new species)", areas, freshened)
+
+  -- -------------------------------------------------------------------
+  -- 5. Legendary Wild Pokémon: Force max level (100), max DVs (15),
+  --    50,000 Stat EXP, and curated competitive movesets for ARTICUNO,
+  --    ZAPDOS, MOLTRES, MEWTWO, and MEW in wild encounters.
+  -- -------------------------------------------------------------------
+  local LEGENDARY_SETS = {
+    MEWTWO   = { "AMNESIA", "PSYCHIC", "RECOVER", "BLIZZARD" },
+    MEW      = { "SWORDS_DANCE", "BODY_SLAM", "EARTHQUAKE", "SOFTBOILED" },
+    ARTICUNO = { "BLIZZARD", "AGILITY", "REFLECT", "DOUBLE_EDGE" },
+    ZAPDOS   = { "THUNDERBOLT", "DRILL_PECK", "THUNDER_WAVE", "AGILITY" },
+    MOLTRES  = { "FIRE_BLAST", "AGILITY", "REFLECT", "FIRE_SPIN" },
+  }
+
+  local status, BattleState = pcall(require, "src.battle.BattleState")
+  if status and BattleState and type(BattleState.newWild) == "function" then
+    local oldNewWild = BattleState.newWild
+    function BattleState.newWild(game, species, level, opts)
+      local isLegendary = LEGENDARY_SETS[species] ~= nil
+      local initLevel = isLegendary and 100 or level
+
+      local battle = oldNewWild(game, species, initLevel, opts)
+
+      if isLegendary and battle and battle.enemy and battle.enemy.mon then
+        local mon = battle.enemy.mon
+        mon.level = 100
+        mon.dvs = { hp = 15, attack = 15, defense = 15, speed = 15, special = 15, atk = 15, def = 15, spe = 15, spc = 15 }
+        mon.dv = 15
+        mon.statExp = { hp = 50000, attack = 50000, defense = 50000, speed = 50000, special = 50000, atk = 50000, def = 50000, spe = 50000, spc = 50000 }
+        mon.stat_exp = mon.statExp
+
+        local StatsStatus, Stats = pcall(require, "src.pokemon.Stats")
+        if StatsStatus and Stats and game and game.data and game.data.pokemon then
+          local def = game.data.pokemon[species]
+          if def then
+            mon.stats = Stats.calc(def, 100, mon.dvs)
+            mon.hp = mon.stats.hp
+            battle.enemy.curStats = mon.stats
+            battle.enemy.shownHP = mon.hp
+          end
+        end
+
+        local mdefs = game and game.data and game.data.moves
+        if mdefs then
+          local list = {}
+          for _, mvName in ipairs(LEGENDARY_SETS[species]) do
+            local mdef = mdefs[mvName]
+            table.insert(list, { id = mvName, pp = mdef and mdef.pp or 0 })
+          end
+          mon.moves = list
+          battle.enemy.curMoves = list
+        end
+      end
+
+      return battle
+    end
+    mod.log:info("kaindof: legendary wild encounters armed (level 100, 15 DVs, 50k Stat EXP, curated sets)")
+  end
 end

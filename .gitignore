@@ -6,4 +6,6 @@ Desktop.ini
 *.zip
 dist/
 .agy_summaries*
+gen1recomp_src/
+
 
