@@ -132,5 +132,44 @@ local regHighOut = callTrainerPartyHook("OPP_YOUNGSTER", 1, inputParty)
 local regHighExp = regHighOut[1].stat_exp and regHighOut[1].stat_exp.attack
 T.eq(regHighExp, 50000, "Regular trainer Stat EXP capped at 50,000 even at level 65+")
 
+-- 4e. Battle AI Switch Override Test (prevent endless switching)
+local function callEnemyActionHook(battleMock, vanillaAction)
+  local nextFn = function(b) return vanillaAction end
+  local chain = run.loader and run.loader.hooks and run.loader.hooks.chains["battle.enemy_action"]
+  if chain then
+    local out = vanillaAction
+    for _, wrapper in ipairs(chain) do
+      out = wrapper(nextFn, battleMock, out) or out
+    end
+    return out
+  end
+  return vanillaAction
+end
+
+local battleMock = {
+  kind = "trainer",
+  trainer = { id = "OPP_LANCE" },
+  data = { moves = { FIX_ATTACK = { power = 50, type = "NORMAL" } } },
+  enemy = {
+    curMoves = { { id = "FIX_ATTACK", pp = 10 } },
+    curTypes = { "NORMAL" },
+    mon = { hp = 100, level = 60, stats = { hp = 100 } }
+  },
+  player = {
+    curTypes = { "NORMAL" },
+    mon = { hp = 100, level = 60, stats = { hp = 100 } }
+  }
+}
+
+-- When vanilla AI selects a switch action, the mod overrides with best attack move
+local switchAction = { special = "switch", slot = 2 }
+local aiChoice = callEnemyActionHook(battleMock, switchAction)
+T.eq(aiChoice.id, "FIX_ATTACK", "AI overrides vanilla switch loop with best attack move")
+
+-- Item actions (e.g. Full Restore) are preserved
+local itemAction = { special = "use_item", item = "FULL_RESTORE" }
+local itemChoice = callEnemyActionHook(battleMock, itemAction)
+T.eq(itemChoice.special, "use_item", "AI preserves vanilla item actions")
+
 run.release()
 T.finish("gen1_kaindof")

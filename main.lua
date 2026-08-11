@@ -569,9 +569,11 @@ return function(mod)
        or not battle.trainer then
       return action
     end
-    -- Class item/switch turns and Struggle stay exactly as vanilla chose.
-    if type(action) ~= "table" or action.special ~= nil
-       or action.struggle or type(action.id) ~= "string" then
+    -- Class item turns (Full Restore, Potion) and Struggle stay as vanilla chose.
+    if type(action) ~= "table" or action.struggle then
+      return action
+    end
+    if action.special ~= nil and tostring(action.special):lower():find("item") then
       return action
     end
     local e, p = battle.enemy, battle.player

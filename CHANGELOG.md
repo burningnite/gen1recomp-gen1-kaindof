@@ -3,6 +3,11 @@
 All notable changes to this mod are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/), versions follow semver.
 
+## 0.3.1 - 2026-08-11
+
+### Fixed
+- Fixed endless AI switching loop by overriding vanilla switch actions (`action.special = "switch"`) with best competitive attack moves while preserving trainer item usage.
+
 ## 0.3.0 - 2026-08-11
 
 ### Changed
