@@ -3,6 +3,14 @@
 All notable changes to this mod are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/), versions follow semver.
 
+## 0.2.0 - 2026-08-11
+
+### Changed
+- Scaled enemy trainer levels dynamically to (average player team level) + random(1 to 3).
+- Scaled enemy trainer DVs by class tier (3-5 early routes, 6-9 mid-tier, 10-14 Gym Leaders, 15 Elite Four).
+- Scaled enemy trainer Stat EXP dynamically with level progression, capped at 50,000 for regular trainers and 65,535 (max) for Gym Leaders, Elite Four, and League Champion.
+- Updated repository manifest URL to `burningnite/gen1recomp-gen1-kaindof`.
+
 ## 0.1.0 - 2026-08-05
 
 ### Added
