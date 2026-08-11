@@ -201,6 +201,103 @@ local function bumpedLevel(level)
   return out
 end
 
+-- Trainer DV tier mapping: early route classes get 3-5 DVs, mid-tier 6-9 DVs,
+-- gym leaders 10-12 DVs, and Elite Four / Bosses 15 DVs.
+local TRAINER_DV_TIERS = {
+  YOUNGSTER     = { min = 3, max = 5 },
+  BUG_CATCHER   = { min = 3, max = 5 },
+  LASS          = { min = 3, max = 5 },
+  JR_TRAINER_M  = { min = 3, max = 5 },
+  JR_TRAINER_F  = { min = 3, max = 5 },
+  SAILOR        = { min = 4, max = 6 },
+  HIKER         = { min = 4, max = 6 },
+  FISHER        = { min = 4, max = 6 },
+  SWIMMER       = { min = 4, max = 6 },
+
+  BIKER         = { min = 6, max = 9 },
+  CUE_BALL      = { min = 6, max = 9 },
+  BURGLAR       = { min = 6, max = 9 },
+  ENGINEER      = { min = 6, max = 9 },
+  GAMBLER       = { min = 6, max = 9 },
+  BEAUTY        = { min = 6, max = 9 },
+  PSYCHIC_TR    = { min = 6, max = 9 },
+  ROCKER        = { min = 6, max = 9 },
+  JUGGLER       = { min = 6, max = 9 },
+  TAMER         = { min = 6, max = 9 },
+  BIRD_KEEPER   = { min = 6, max = 9 },
+  BLACKBELT     = { min = 6, max = 9 },
+  ROCKET        = { min = 6, max = 9 },
+  SCIENTIST     = { min = 6, max = 9 },
+  POKEMANIAC    = { min = 6, max = 9 },
+  SUPER_NERD    = { min = 6, max = 9 },
+  CHANNELER     = { min = 6, max = 9 },
+  GENTLEMAN     = { min = 6, max = 9 },
+
+  COOLTRAINER_M = { min = 11, max = 13 },
+  COOLTRAINER_F = { min = 11, max = 13 },
+
+  BROCK         = { min = 10, max = 12 },
+  MISTY         = { min = 10, max = 12 },
+  LT_SURGE      = { min = 10, max = 12 },
+  ERIKA         = { min = 10, max = 12 },
+  KOGA          = { min = 11, max = 13 },
+  SABRINA       = { min = 11, max = 13 },
+  BLAINE        = { min = 12, max = 14 },
+  GIOVANNI      = { min = 12, max = 14 },
+
+  LORELEI       = { min = 15, max = 15 },
+  BRUNO         = { min = 15, max = 15 },
+  AGATHA        = { min = 15, max = 15 },
+  LANCE         = { min = 15, max = 15 },
+}
+
+local function getDVForClass(oppClass, level)
+  local key = tostring(oppClass or ""):upper():gsub("^OPP_", ""):gsub("%d+$", "")
+  local tier = TRAINER_DV_TIERS[key]
+  if tier then
+    return math.random(tier.min, tier.max)
+  end
+  local lv = tonumber(level) or 1
+  if lv <= 15 then
+    return math.random(3, 5)
+  elseif lv <= 35 then
+    return math.random(6, 9)
+  elseif lv <= 50 then
+    return math.random(10, 12)
+  else
+    return math.random(13, 15)
+  end
+end
+
+-- Stat EXP scales smoothly based on player progression (level 15 -> 0 Stat EXP,
+-- level 65+ -> max Stat EXP). Regular trainers cap at 50,000 Stat EXP;
+-- Gym Leaders, Elite Four, and Rival/Champion scale up to full 65,535 Stat EXP.
+local BOSS_CLASSES = {
+  BROCK = true, MISTY = true, LT_SURGE = true, ERIKA = true,
+  KOGA = true, SABRINA = true, BLAINE = true, GIOVANNI = true,
+  LORELEI = true, BRUNO = true, AGATHA = true, LANCE = true,
+  RIVAL = true, RIVAL1 = true, RIVAL2 = true, RIVAL3 = true,
+}
+
+local function isBossClass(oppClass)
+  local key = tostring(oppClass or ""):upper():gsub("^OPP_", ""):gsub("%d+$", "")
+  return BOSS_CLASSES[key] ~= nil or key:find("RIVAL") ~= nil
+end
+
+local function getStatExpForLevel(oppClass, level)
+  local lv = tonumber(level) or 1
+  local maxCap = isBossClass(oppClass) and 65535 or 50000
+  if lv <= 15 then
+    return 0
+  elseif lv >= 65 then
+    return maxCap
+  else
+    local progress = (lv - 15) / (65 - 15)
+    local rawExp = math.floor(progress * 65535 + 0.5)
+    return math.min(maxCap, rawExp)
+  end
+end
+
 local function copyMember(member)
   local copy = {}
   for k, v in pairs(member) do copy[k] = v end
@@ -395,6 +492,19 @@ return function(mod)
       if avgLevel and not isFirstRival then
         local bonus = math.random(LEVEL_BONUS_MIN, LEVEL_BONUS_MAX)
         copy.level = math.min(LEVEL_CAP, math.max(1, avgLevel + bonus))
+        any = true
+      end
+
+      -- Dynamically scale DVs (by trainer class tier/location) and Stat EXP (by level progression)
+      if not isFirstRival then
+        local slotLevel = tonumber(copy.level) or 1
+        local dvVal = getDVForClass(oppClass, slotLevel)
+        local expVal = getStatExpForLevel(oppClass, slotLevel)
+
+        copy.dvs = { hp = dvVal, attack = dvVal, defense = dvVal, speed = dvVal, special = dvVal, atk = dvVal, def = dvVal, spe = dvVal, spc = dvVal }
+        copy.dv = dvVal
+        copy.statExp = { hp = expVal, attack = expVal, defense = expVal, speed = expVal, special = expVal, atk = expVal, def = expVal, spe = expVal, spc = expVal }
+        copy.stat_exp = copy.statExp
         any = true
       end
 

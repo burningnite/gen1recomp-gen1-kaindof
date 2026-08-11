@@ -5,6 +5,8 @@ return {
   differences = {
     changed = {
       "Trainer levels: average player team level + random(1 to 3)",
+      "Trainer DVs: scaled by class tier (3-5 early, 6-9 mid, 10-14 Gym Leaders, 15 Elite Four)",
+      "Trainer Stat EXP: dynamically scaled from 0 (early) capped at 50,000 for regular trainers; Gym Leaders, Elite Four, & Champion scale to max 65,535",
       "Parties padded to 6 with varied species themed to the trainer class",
       "Each padded party is closed by one surprise ace, one level above the old strongest",
       "~55 species get a classic RBY competitive moveset on trainer teams",

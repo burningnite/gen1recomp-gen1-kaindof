@@ -22,6 +22,8 @@ love .
 | Area | Change |
 |---|---|
 | Levels | **Average player team level + random(1..3)** on every trainer Pokémon |
+| DVs | **Scaled by trainer tier/class**: Early route = 3–5 DVs, Mid-tier = 6–9 DVs, Gym Leaders = 10–14 DVs, Elite Four = 15 DVs (max) |
+| Stat EXP | **Scaled dynamically with level progression**: 0 Stat EXP early game $\rightarrow$ ~26,000 mid-game; capped at **50,000** for regular trainers, while Gym Leaders, Elite Four, and League Champion scale up to full **65,535** |
 | Party size | Padded to 6 with **varied species themed to the trainer's class** (Bug Catchers bring bugs, Hikers bring rock/ground, gym leaders pad within their type) |
 | Ace | Each padded party closes with one surprise ace (Bug Catcher → Scyther, Fisherman → Gyarados, Lance → second Dragonite…) one level above the team's old strongest |
 | Movesets | ~55 species get a classic RBY competitive set (Tauros: Body Slam / Hyper Beam / Earthquake / Blizzard, Chansey: Ice Beam / Thunderbolt / Thunder Wave / Soft-Boiled, ...) — **only from level 25 up**, so endgame TM sets never appear on early-route trainers |

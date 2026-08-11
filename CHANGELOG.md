@@ -9,6 +9,8 @@ All notable changes to this mod are documented here. Format follows
 
 - Trainer levels scaled to (average player team level) + random(1 to 3)
   (capped at 100), applied to every roster in each trainer class's parties list.
+- Trainer DVs scaled per class tier/location (3-5 early, 6-9 mid, 10-14 Gym Leaders, 15 Elite Four).
+- Trainer Stat EXP dynamically scaled from 0 (early game, <=15); capped at 50,000 for regular trainers while Gym Leaders, Elite Four, and Champion scale up to full 65,535.
 - Trainer parties padded to 6 with varied species themed to the trainer's
   class, closed by one surprise ace one level above the old strongest.
 - Competitive RBY movesets for ~55 species, carried by the trainer.party
